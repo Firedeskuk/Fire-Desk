@@ -154,7 +154,7 @@ One pill in the header of every field screen:
 | user logs out with pending rows | blocked, see 7 |
 | clock wrong on the phone | `created_at` is what the phone says, `received_at` is set by the server on arrival, reports use server time for ordering |
 
-## 11. Server pieces required (migration 0002)
+## 11. Server pieces (migration 20260913184233_sync, applied)
 
 1. RPC `download_building(building_id uuid)` returning jsonb, security invoker, role aware.
 2. RPC `sync_push(changes jsonb)` returning jsonb, security invoker, transactional, per-row results.

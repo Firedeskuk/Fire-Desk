@@ -12,8 +12,8 @@ Copy the files from this delivery to these paths:
 |---|---|
 | CLAUDE.md | repo root, replaces the old one |
 | SPEC.md | repo root, replaces the old one |
-| 0001_init.sql | supabase/migrations/0001_init.sql |
-| 0002_sync.sql | supabase/migrations/0002_sync.sql |
+| 20260913184137_init.sql | supabase/migrations/20260913184137_init.sql |
+| 20260913184233_sync.sql | supabase/migrations/20260913184233_sync.sql |
 | SYNC-PROTOCOL.md | docs/SYNC-PROTOCOL.md |
 | SETUP.md | docs/SETUP.md |
 | BRIEFING.md | docs/BRIEFING.md |
@@ -21,18 +21,14 @@ Copy the files from this delivery to these paths:
 
 Then commit on a branch (for example `feat/schema-and-docs`) and open a pull request to `main`. Piotr reviews and merges.
 
-## B. Apply the database schema
+## B. Database schema: already applied
 
-Do this once, on the Fire Desk project (not Brain FD).
+Both migrations were applied to the Fire Desk project from claude.ai on 13 Sep 2026. Supabase recorded them as:
 
-1. Open https://supabase.com/dashboard, pick the organisation, open the project **Fire Desk** (id `xuyruluqwtbizstjqewf`).
-2. In the left menu click **SQL Editor**, then **New query**.
-3. Open `0001_init.sql`, select all, copy, paste into the editor.
-4. Click **Run** (bottom right). Wait. The result should say "Success. No rows returned".
-5. Click **New query** again. Paste the whole `0002_sync.sql`. Click **Run**. Same success message.
-6. Check: in the left menu click **Table Editor**. You should see 21 tables, for example `assets`, `buildings`, `findings`.
+- `20260913184137_init` (21 tables, 1 view, 42 policies, 4 storage buckets)
+- `20260913184233_sync` (2 RPC functions, 8 triggers, 1 extra policy)
 
-If step 4 or 5 shows an error, copy the whole error text to Claude. Do not run the same file twice, it will complain that things already exist.
+Do not run the SQL files again. The files in the repo use the same names, so the migration history in the database and in the repo match. Check if you like: **Table Editor** should show 21 tables, for example `assets`, `buildings`, `findings`.
 
 ## C. Create the first user (the manager)
 
@@ -71,4 +67,4 @@ and paste back what the terminal prints.
 
 ---
 
-Krótko po polsku: A wrzuć pliki do repo, B wklej dwa pliki SQL w SQL Editor projektu Fire Desk i kliknij Run, C załóż pierwszego użytkownika w Authentication i podnieś go do managera jednym zapytaniem SQL, D klucze do aplikacji dopiero jak będzie kod. Każdy błąd na czerwono kopiujesz do Claude.
+Krótko po polsku: A wrzuć pliki do repo, B baza już zrobiona, nic nie uruchamiaj, C załóż pierwszego użytkownika w Authentication i podnieś go do managera jednym zapytaniem SQL, D klucze do aplikacji dopiero jak będzie kod. Każdy błąd na czerwono kopiujesz do Claude.

@@ -41,7 +41,7 @@ Client > Building > Work type (Doors / FS) > Floors (optional) > Asset (door, pe
 - Alerts: one per building ("17 doors due"), expands to a list: floor, door number, due date.
 - NAPFIS certificate: one per building per completed project, uploaded as a file.
 
-Tables (see `supabase/migrations/0001_init.sql`):
+Tables (see `supabase/migrations/20260913184137_init.sql`):
 
 - People and access: `profiles`, `building_assignments`
 - Structure: `clients`, `buildings`, `floors`, `assets`
@@ -102,7 +102,7 @@ Decided route: A now, C later. Full reasoning in `docs/BRIEFING-2-platform.md`.
 - C later: the same code in a Capacitor shell for the App Store and Google Play, native push, native storage. No rewrite.
 - B (separate native app) rejected at this stage: double work for a team of two.
 
-Sync engine, decided 13 Sep 2026: custom queue on IndexedDB (Dexie). PowerSync is plan B without a schema change. Full protocol in `docs/SYNC-PROTOCOL.md`, server side in `supabase/migrations/0002_sync.sql`.
+Sync engine, decided 13 Sep 2026: custom queue on IndexedDB (Dexie). PowerSync is plan B without a schema change. Full protocol in `docs/SYNC-PROTOCOL.md`, server side in `supabase/migrations/20260913184233_sync.sql`.
 
 Session on the phone: stored locally, not in cookies, kept for weeks. Logout with unsent changes is blocked.
 
