@@ -59,20 +59,20 @@ lib/
   pdf/, qr/, photos/   photo compression to about 1600 px
 styles/theme.css
 public/                manifest, icons, service worker
-supabase/migrations/   0001_init.sql, 0002_sync.sql, next ones numbered
+supabase/migrations/   20260913184137_init.sql, 20260913184233_sync.sql, next ones with a timestamp prefix
 docs/                  briefings, mockups, SYNC-PROTOCOL.md, SETUP.md
 types/
 ```
 
 ## 6. Database
 
-- Schema is in `supabase/migrations/0001_init.sql` (tables, RLS, buckets) and `0002_sync.sql` (RPC `download_building`, RPC `sync_push`, triggers). Read both before touching data.
+- Schema is in `supabase/migrations/20260913184137_init.sql` (tables, RLS, buckets) and `20260913184233_sync.sql` (RPC `download_building`, RPC `sync_push`, triggers). Read both before touching data.
 - Tables: profiles, building_assignments, clients, buildings, floors, assets, projects, survey_templates, survey_template_items, inspections, inspection_answers, findings, finding_photos, remedial_items, remedial_photos, price_list_items, quotes, quote_lines, reports, certificates, asset_events. View: all_photos.
 - Every table the field writes to has: uuid `id` generated on the device, `created_by`, `device_id`, `created_at`, `updated_at`, `deleted_at`, `received_at`.
 - Nothing is hard deleted. Set `deleted_at`.
 - A remedial item is created by a database trigger when a finding is inserted. The app never creates remedial items.
 - Next due date is set by a trigger when an inspection is completed. The app may show a provisional value, never writes it.
-- A new migration is a new file `supabase/migrations/NNNN_name.sql`. Show it, get "yes", then a human applies it in the Supabase SQL Editor or Piotr applies it from claude.ai. Never drop or rename a column or table without Piotr's explicit yes.
+- A new migration is a new file `supabase/migrations/YYYYMMDDHHMMSS_name.sql`. Show it, get "yes", then a human applies it in the Supabase SQL Editor or Piotr applies it from claude.ai. Never drop or rename a column or table without Piotr's explicit yes.
 
 ## 7. Roles
 
