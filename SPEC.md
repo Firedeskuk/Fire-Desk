@@ -1,93 +1,128 @@
-# Fire Desk specification
+# SPEC.md, Fire Desk
 
-Agreed 13 September 2026 by Piotr Ficner. Mirror of wardrobe `fire-desk-spec` in Brain FD. English is the working language of this file; the Brain FD entries carry a Polish version too.
+Product specification. Every decision here was made by Piotr and is mirrored in Brain FD (Supabase project `lgijuxwwciysbdxaolxe`, wardrobe `fire-desk-spec`). If this file and Brain FD disagree, Brain FD wins, and this file gets a correction. Last updated 13 Sep 2026.
 
-## 1. Ownership and accounts
+Client company names, addresses and people are kept out of this file on purpose, the repo is public.
 
-- Software owner: Skylon Elements Ltd.
-- Domain firedeskuk.com. Main account info@firedeskuk.com (bootstrap Gmail firedesk26@gmail.com kept as recovery).
-- Fresh accounts, nothing shared with Skylon Construction: Google Workspace, GitHub org `firedeskuk`, Supabase org Fire Desk (projects: `Fire Desk` = application, `Brain FD` = shared memory), Vercel, Resend.
-- FD30 (UK) Ltd is a client, not the owner.
-- Tomasz Sadek develops on the project. His agreement must state the code belongs to Skylon Elements.
+---
 
-## 2. Roles
+## 1. What Fire Desk is
 
-| Role | Sees | Does |
-|---|---|---|
-| Manager | everything | projects, clients, users, templates, pricing, QC, reports |
-| Admin | assigned projects, operatives | create and edit projects, assign surveys, schedule operatives |
-| Inspector | assigned buildings and surveys | inspections, findings, photos, floor plan pins, QR, offline |
-| Remedial team | works list for assigned buildings only | mark items in progress or done, photo after |
+A fire door and fire stopping compliance platform for UK contractors. It replaces the register tool the team uses today and adds what that tool lacks: quotes built from defects without retyping, remedial works tracking with photos after, branded PDF reports with no third party logo, NAPFIS certificate storage, and every door kept as an asset with its full history (golden thread of information).
 
-Remedial team has no access to inspections. Assignment is per building, not per defect: they see every item in that building.
+Fire Desk = register (what the current tool does) + contractor business (quotes, remedial, reports) + the team's own production and certification.
 
-## 3. Data model
+## 2. Ownership and accounts
 
-```
-Client
-  Building
-    Work type (Doors / FS)
-      Floors (optional category, set when the project is created)
-        Asset (door or penetration)  <- full history, golden thread of information (GToI)
-          Inspection
-            Finding
-              Remedial work
-                Report (QC, PDF)
-                  NAPFIS certificate (one per building per completed project)
-```
+- Owner of the software: Skylon Elements Ltd. The software may be sold one day, so nothing depends on any other company's accounts.
+- Domain firedeskuk.com, app at app.firedeskuk.com, main account info@firedeskuk.com.
+- Own accounts from zero: Google Workspace, GitHub org, Supabase org (projects: Fire Desk = application, Brain FD = memory), Vercel, Resend.
+- The first client is a fire door contractor servicing a property portfolio. It is a client, not an owner.
+- Tomasz Sadek codes on the project. His agreement states the code belongs to Skylon Elements.
 
-- Project (from Tomasz proposal) is the organisational layer on top: who, when, which survey.
-- Inspection cycle lives on the asset: doors 3 / 6 / 12 months, set when the door is added. FS: 12 months or NA.
-- Alerts: one per building ("17 doors due"). Opens to a list: floor, door number, due date.
-- NAPFIS certificate: file upload, one per building per completed project.
-- Date validation everywhere (RiskBase let a review date of 2101 through).
+## 3. Roles
 
-## 4. Pricing
+| Role | Sees and does |
+|---|---|
+| Manager | everything |
+| Admin | projects, operatives, schedule, settings |
+| Inspector | downloads buildings, runs inspections, raises findings with photo and floor plan pin, scans QR, works offline |
+| Remedial team (joiners, fire stoppers) | separate view, no access to inspections or findings, sees only the works list for the buildings it is assigned to, marks items done with a photo after |
 
-- Settings > Pricing: a list of a few dozen items, one amount per item, no labour / material split. Doorsets are in the same list, simple pricing.
-- Two percentage steps, multiplied: `price = default x client adjustment x building adjustment` (example: 100 x 0.9 x 1.1 = 99).
-- Clients tab: percentage adjustment per client (example: Atlas -10%).
-- Per building: an additional percentage adjustment.
-- On the quote: manual override of any line.
-- Remedial = works list built from these items, total at the bottom.
+Remedial assignment is per building, not per defect. An assigned worker sees every open item in that building.
 
-## 5. MVP scope
+## 4. Data model
 
-MVP = Tomasz proposal (roles, dashboard, projects, survey templates, finding with photo and pin, offline, QR, cycles) plus:
+Client > Building > Work type (Doors / FS) > Floors (optional) > Asset (door, penetration) > Inspection > Finding > Remedial > Report > NAPFIS certificate.
 
-1. Quote generated from findings.
-2. Remedial status (to do, in progress, done, photo after).
-3. QC: preview, "all ok", PDF generated in Next, sent by email or downloaded. Our brand only, no "Powered by".
-4. Doors as assets with full history.
-5. NAPFIS certificate upload.
+- Every asset keeps its full history for life in `asset_events`, one immutable timeline per door or penetration.
+- A project is the organisational layer on top: who, when, which survey, which work type, in which building.
+- The inspection cycle lives on the asset: doors 3, 6 or 12 months, set when the door is added; fire stopping 12 months or NA. The next due date is computed by the server when an inspection is completed.
+- Alerts: one per building ("17 doors due"), expands to a list: floor, door number, due date.
+- NAPFIS certificate: one per building per completed project, uploaded as a file.
 
-Stage 2 (not MVP): invoices, recurring contracts, client portal, doorset production link.
+Tables (see `supabase/migrations/0001_init.sql`):
 
-## 6. UI rules
+- People and access: `profiles`, `building_assignments`
+- Structure: `clients`, `buildings`, `floors`, `assets`
+- Work: `projects`, `survey_templates`, `survey_template_items`, `inspections`, `inspection_answers`, `findings`
+- Photos: `finding_photos`, `remedial_photos`, view `all_photos` over both
+- Money: `price_list_items`, `quotes`, `quote_lines`, `remedial_items`
+- Output: `reports`, `certificates`, `asset_events`
 
-- Cream background by default, dark theme toggle. CSS built with both themes through variables from day one.
-- Base font 14 px. High contrast. Readable on site in sunlight and for older workers.
-- Buttons and touch targets min 48 px.
-- Status colours: red = overdue more than 1 to 2 weeks, yellow = overdue up to 1 to 2 weeks, orange = remedial works in progress, green = all ok. Nothing alarming before the due date.
-- App language: always English.
-- One-hand mode on phone. One screen = one task in the inspector app.
+Decisions baked into the schema:
 
-## 7. Platform
+- Photos in two tables (finding photos, remedial photos) with one shared view and one shared sync queue.
+- `asset_events` is a separate table, written by triggers, never edited.
+- Many quotes per project, with `version` and `is_current`.
+- A remedial item is created straight from a finding by a trigger, status `todo`, no approval gate. A quote line can be attached to it later.
+- Stage 2 invoicing has room already: `clients.vat_number`, `clients.payment_terms_days`, `quotes.invoice_ref`, `quotes.invoiced_at`. No screens in the MVP.
+- Nothing is hard deleted. `deleted_at` everywhere.
+- Inspection answers copy the question text, so editing a template never rewrites history.
+- Quote lines copy the default price and both percentages, so editing the price list never changes a sent quote.
 
-- Next.js + Supabase. PDF generated in Next (no Java).
-- Option A now: offline-first PWA, one codebase for office, inspector and remedial, installed on the phone home screen (iPhone and Android).
-- Local data on the phone is the source of truth in the field. Supabase is the hub. Sync when signal returns. Photos compressed to about 1600 px. Visible indicator: "offline, N changes pending".
-- Not available offline: PDF, email, downloading a new building, first login.
-- Option C later: the same code wrapped in Capacitor for App Store and Play, no rewrite. No developer accounts and no Mac needed to start.
-- Offline-first is the hardest part and is designed before the first line of code.
+## 5. Pricing
 
-## 8. Inputs and competition
+- Settings > Pricing: a list of a few dozen items, one amount per item, no labour and material split, doorsets in the same list.
+- Two percentage steps, multiplied: price = default x client adjustment x building adjustment. Example: 100 x 0.9 x 1.1 = 99. Stored as "100 = no change", so 90 means minus 10 percent.
+- Clients tab: percentage per client. Building: an extra percentage.
+- Quote: manual override of any line. Total at the bottom.
+- Remedial works list is built from these items.
 
-- RiskBase: used today with Atlas (1 GBP per door, 0.50 per reinspection). Door register, QR, floor plan pins, checklist, actions carried between inspections, client portal, API and webhooks. No quoting, invoicing or production. Sample report: fire stopping, Rufus House, 20 July 2026, 23 pages, 22 findings with Quelfire / Protecta tested details.
-- Uptick: built for contractor businesses. Defect quoting in the field, online approval, invoices, contracts, client portal, install projects. Per user pricing, aimed at alarms and sprinklers.
-- Tomasz proposal (10 slides): roles, dashboard like Skylon Build, projects, survey templates, finding with photo and pin, offline, QR, cycle schedule. Missing: quoting, remedial status, QC, portal, asset history.
-- Fire Desk = register (RiskBase) + contractor business (Uptick) + our own production and NAPFIS certificate.
+## 6. MVP scope
 
-## 9. Mockups
+MVP = the base proposal (roles, dashboard, projects, survey templates, findings with photo and floor plan pin, offline, QR, inspection cycles) plus:
 
-`docs/mockups/fire-desk-screens.html` (dashboard, inspector app, remedial app, cream and dark), `docs/mockups/fire-desk-architecture.svg`, `docs/mockups/fire-desk-defect-flow.svg`. Direction, not final design.
+- quote from findings
+- remedial status with photo after, mark done
+- QC preview, then PDF, email or download, own brand, no "Powered by"
+- doors as assets with full history
+- NAPFIS certificate upload
+
+Stage 2: invoices, recurring contracts, client portal, doorset production.
+
+## 7. UI rules
+
+- Cream background by default with a dark toggle. Both themes through CSS variables from day one. Tokens in CLAUDE.md section 9 and `styles/theme.css`.
+- Base font 14 px. Buttons at least 48 px. High contrast for building sites in sunlight and for older workers.
+- Status colours: red = overdue more than 1 to 2 weeks, yellow = overdue up to 1 to 2 weeks, orange = remedial in progress, green = all ok. No alarm colour before the due date.
+- App language: English only.
+- One hand mode on the phone. One screen = one task in the inspector app.
+- Dates are validated (no review dates in the year 2101).
+
+Approved mockups (direction, not final design): `docs/mockups/fire-desk-screens.html` (dashboard, inspector door screen, remedial works list), `docs/mockups/fire-desk-architecture.svg`, `docs/mockups/fire-desk-defect-flow.svg`. Screens not yet mocked: login, buildings list with download, floor plan with pins, quote editor, QC preview. Mockup first, then code.
+
+## 8. Platform
+
+Decided route: A now, C later. Full reasoning in `docs/BRIEFING-2-platform.md`.
+
+- A: offline-first PWA. Next.js on Vercel, Supabase behind it, one codebase for office, inspector and remedial, installed on the phone home screen (mandatory on iPhone).
+- Local data on the phone is the truth in the field. Sync when signal returns. Photos compressed to about 1600 px. Indicator "Offline, N to sync".
+- Not available offline by design: PDF, email, downloading a building not downloaded before, first login.
+- C later: the same code in a Capacitor shell for the App Store and Google Play, native push, native storage. No rewrite.
+- B (separate native app) rejected at this stage: double work for a team of two.
+
+Sync engine, decided 13 Sep 2026: custom queue on IndexedDB (Dexie). PowerSync is plan B without a schema change. Full protocol in `docs/SYNC-PROTOCOL.md`, server side in `supabase/migrations/0002_sync.sql`.
+
+Session on the phone: stored locally, not in cookies, kept for weeks. Logout with unsent changes is blocked.
+
+## 9. Definition of done for the MVP
+
+1. An inspector completes a full door round in a building with airplane mode on, then syncs, and every finding, photo and pin arrives in Supabase intact.
+2. A manager turns those findings into a quote with prices from the price list adjusted by client and building percentages, overrides one line by hand, exports a PDF with the owner's branding.
+3. A remedial joiner opens the works list for that building on a phone, marks items done with photos after, and the manager sees the status change.
+4. The NAPFIS certificate is uploaded and attached to the building for that project.
+5. The dashboard shows one alert per building with due doors, in the agreed colours, on a cream background, readable on a phone in daylight.
+6. The 10 airplane mode tests in `docs/SYNC-PROTOCOL.md` section 12 pass on a real iPhone and a real Android.
+
+## 10. Still open
+
+1. PDF library in Next (server side).
+2. QR scanning library that works in Safari and Chrome.
+3. How the office panel and the field app share components without shipping office code to the phone (route groups are the starting point).
+4. Who hosts the first test build and when the first client sees a demo.
+5. Mockups for: login, buildings list, floor plan with pins, quote editor, QC preview.
+
+---
+
+Krótko po polsku dla Piotra: ten plik to pełna specyfikacja produktu w repo, po angielsku dla Tomasza i Claude Code. Zawiera wszystkie decyzje z Brain FD plus te z 13.09.2026: schemat bazy, dwie tabele zdjęć, osobna historia drzwi, wiele wycen na projekt, remedial od razu z usterki, miejsce pod faktury, własna kolejka sync z PowerSync jako planem B. Nazwy klientów celowo pominięte, bo repo jest publiczne. Jeśli Brain FD i ten plik się różnią, Brain FD ma rację.
