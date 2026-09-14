@@ -1,6 +1,6 @@
 -- Fire Desk, sync layer and server side rules
 -- File: supabase/migrations/20260913184233_sync.sql
--- Requires 0001_init.sql. Implements section 11 of docs/SYNC-PROTOCOL.md.
+-- Requires 20260913184137_init.sql. Implements section 11 of docs/SYNC-PROTOCOL.md.
 -- Review first, then apply.
 
 -- ---------------------------------------------------------------------------
@@ -64,7 +64,7 @@ create trigger on_auth_user_created
   for each row execute function handle_new_user();
 
 -- ---------------------------------------------------------------------------
--- 4. RLS gap from 0001: the field patches a few asset fields (qr_code, location...)
+-- 4. RLS gap from 20260913184137_init: the field patches a few asset fields (qr_code, location...)
 -- ---------------------------------------------------------------------------
 
 create policy assets_inspector_update on assets for update
@@ -420,4 +420,4 @@ $$;
 revoke all on function sync_push(jsonb) from public;
 grant execute on function sync_push(jsonb) to authenticated;
 
--- End of 0002_sync.sql
+-- End of 20260913184233_sync.sql

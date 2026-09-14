@@ -618,4 +618,4 @@ create policy storage_read_signed_in on storage.objects for select to authentica
 create policy storage_write_signed_in on storage.objects for insert to authenticated
   with check (bucket_id in ('photos', 'floorplans', 'reports', 'certificates'));
 
--- End of 0001_init.sql
+-- End of 20260913184137_init.sql
