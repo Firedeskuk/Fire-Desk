@@ -1,0 +1,5 @@
+Files deleted by the branch feat/mvp-night-2. The GitHub web uploader cannot delete, so remove each one on GitHub by hand (open the file, bin icon, commit to feat/mvp-night-2):
+
+components/field/inspector/QrScanStub.tsx
+supabase/migrations/0001_init.sql
+supabase/migrations/0002_sync.sql
